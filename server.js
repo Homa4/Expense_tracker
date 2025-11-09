@@ -10,6 +10,7 @@ app.get("/", (req, res) => {
   res("Hello Amigo");
 });
 
+app.use(express.json());
 app.use(userRouter);
 app.use(categoryRouter);
 app.use(recordRouter);

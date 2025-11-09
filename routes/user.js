@@ -4,11 +4,9 @@ import path from "path";
 
 const router = express.Router();
 
-// шлях до файлу user.json
 const __dirname = path.resolve();
 const USERS_PATH = path.join(__dirname, "db", "user.json");
 
-// допоміжна функція
 async function readUsers() {
   try {
     const data = await fs.readFile(USERS_PATH, "utf8");
@@ -34,7 +32,7 @@ router.get("/user/:id", async (req, res) => {
   res.json(user);
 });
 
-router.post("/user", async (req, res) => {
+router.post("/createUser", async (req, res) => {
   const { name, email } = req.body;
   if (!name || !email)
     return res.status(400).json({ error: "name and email required" });
@@ -50,7 +48,7 @@ router.post("/user", async (req, res) => {
   res.status(201).json({ message: "User created", user: newUser });
 });
 
-router.delete("/user/:id", async (req, res) => {
+router.delete("/deleteUser/:id", async (req, res) => {
   const users = await readUsers();
   const newUsers = users.filter((u) => u.id !== Number(req.params.id));
   if (newUsers.length === users.length)

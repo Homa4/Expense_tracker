@@ -20,12 +20,12 @@ async function writeCategories(categories) {
   await fs.writeFile(CATEGORY_PATH, JSON.stringify(categories, null, 2));
 }
 
-router.get("/category", async (_, res) => {
+router.get("/categories", async (_, res) => {
   const categories = await readCategories();
   res.json(categories);
 });
 
-router.post("/category", async (req, res) => {
+router.post("/createCategory", async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: "name is required" });
 
@@ -39,7 +39,7 @@ router.post("/category", async (req, res) => {
   res.status(201).json({ message: "Category created", category: newCategory });
 });
 
-router.delete("/category/:id", async (req, res) => {
+router.delete("/deleteCategory/:id", async (req, res) => {
   const categories = await readCategories();
   const newCategories = categories.filter(
     (c) => c.id !== Number(req.params.id)

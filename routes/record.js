@@ -7,7 +7,6 @@ const router = express.Router();
 const __dirname = path.resolve();
 const RECORD_PATH = path.join(__dirname, "db", "record.json");
 
-// --- допоміжні функції ---
 async function readRecords() {
   try {
     const data = await fs.readFile(RECORD_PATH, "utf8");
@@ -21,18 +20,18 @@ async function writeRecords(records) {
   await fs.writeFile(RECORD_PATH, JSON.stringify(records, null, 2));
 }
 
-router.get("/record/:id", async (req, res) => {
+router.get("/getRecord/:id", async (req, res) => {
   const records = await readRecords();
   const record = records.find((r) => r.id === Number(req.params.id));
   if (!record) return res.status(404).json({ error: "Record not found" });
   res.json(record);
 });
 
-router.get("/record", async (req, res) => {
-  const { user_id, category_id } = req.query;
+router.get("/getRecordWithFilter", async (req, res) => {
+  const { user_id, category_id } = req.body;
   const records = await readRecords();
 
-  if (!user_id && !category_id)
+  if (!user_id || !category_id)
     return res.status(400).json({ error: "Provide user_id or category_id" });
 
   const filtered = records.filter((r) => {
@@ -45,7 +44,7 @@ router.get("/record", async (req, res) => {
   res.json(filtered);
 });
 
-router.post("/record", async (req, res) => {
+router.post("/createRecord", async (req, res) => {
   const { user_id, category_id, amount, date } = req.body;
 
   if (!user_id || !category_id || !amount)
@@ -67,7 +66,7 @@ router.post("/record", async (req, res) => {
   res.status(201).json({ message: "Record created", record: newRecord });
 });
 
-router.delete("/record/:id", async (req, res) => {
+router.delete("/deleteRecord/:id", async (req, res) => {
   const records = await readRecords();
   const newRecords = records.filter((r) => r.id !== Number(req.params.id));
 

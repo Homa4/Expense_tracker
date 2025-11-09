@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "category_id": 1,
+    "amount": 50,
+    "date": "2025-11-09T13:31:13.254Z"
+  },
+  {
+    "id": 2,
+    "user_id": 1,
+    "category_id": 2,
+    "amount": 50,
+    "date": "2025-11-09T13:31:25.163Z"
+  },
+  {
+    "id": 3,
+    "user_id": 2,
+    "category_id": 1,
+    "amount": 50,
+    "date": "2025-11-09T13:31:33.659Z"
+  }
+]
