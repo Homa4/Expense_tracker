@@ -1,22 +1,14 @@
-import mysql from "mysql2";
-import { config } from "dotenv";
+import { PrismaClient } from "@prisma/client";
 
-config();
-
-const pool = mysql
-  .createPool({
-    host: "127.0.0.1",
-    port: 3306,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: "Backend_lab2",
-  })
-  .promise();
+const prisma = new PrismaClient();
 
 try {
-  const [user] = await pool.query("SELECT * FROM user");
-  console.log("✅ Connected to db");
-  console.log(user);
+  const test = await prisma.test.findMany();
+  console.log(test);
+  console.log("✅ connected to db");
 } catch (err) {
   console.error(err.message);
+  console.log("👹 failed to connect to db");
 }
+
+export default prisma;

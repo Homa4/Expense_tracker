@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  id            Int      @id @default(autoincrement())
+  category_name String?  @db.VarChar(45)
+  records       record[]
+}
+
+model currency {
+  id            Int      @id @default(autoincrement())
+  currency_type String?  @db.VarChar(45)
+  record        record[]
+  user          user[]
+}
+
+model record {
+  id          Int       @id @default(autoincrement())
+  date        DateTime? @db.DateTime(0)
+  amount      String?   @db.VarChar(45)
+  user_id     Int?
+  category_id Int?
+  currency_id Int?
+  category    category? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "category_id")
+  currency    currency? @relation(fields: [currency_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_record_currency")
+  user        user?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
+
+  @@index([category_id], map: "category_id_idx")
+  @@index([currency_id], map: "currency_id_idx")
+  @@index([user_id], map: "user_id_idx")
+}
+
+model user {
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(45)
+  currency_id   Int?
+  record        record[]
+  currency      currency? @relation(fields: [currency_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "currency_id")
+
+  @@index([currency_id], map: "currency_id_idx")
+  
+}
+
+model test {
+  id Int @id @default(autoincrement())
+}

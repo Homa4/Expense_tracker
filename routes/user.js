@@ -1,61 +1,65 @@
 import express from "express";
-import fs from "fs/promises";
-import path from "path";
+import { PrismaClient } from "@prisma/client";
 
 const router = express.Router();
-
-const __dirname = path.resolve();
-const USERS_PATH = path.join(__dirname, "db", "user.json");
-
-async function readUsers() {
-  try {
-    const data = await fs.readFile(USERS_PATH, "utf8");
-    return JSON.parse(data || "[]");
-  } catch {
-    return [];
-  }
-}
-
-async function writeUsers(users) {
-  await fs.writeFile(USERS_PATH, JSON.stringify(users, null, 2));
-}
+const prisma = new PrismaClient();
 
 router.get("/users", async (_, res) => {
-  const users = await readUsers();
-  res.json(users);
+  try {
+    const users = await prisma.user.findMany();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
 });
 
 router.get("/user/:id", async (req, res) => {
-  const users = await readUsers();
-  const user = users.find((u) => u.id === Number(req.params.id));
-  if (!user) return res.status(404).json({ error: "User not found" });
-  res.json(user);
+  const id = Number(req.params.id);
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching user" });
+  }
 });
 
 router.post("/createUser", async (req, res) => {
-  const { name, email } = req.body;
-  if (!name || !email)
-    return res.status(400).json({ error: "name and email required" });
+  const { name, currency_id = 1 } = req.body;
 
-  const users = await readUsers();
-  const newUser = {
-    id: users.length ? users[users.length - 1].id + 1 : 1,
-    name,
-    email,
-  };
-  users.push(newUser);
-  await writeUsers(users);
-  res.status(201).json({ message: "User created", user: newUser });
+  if (!name) {
+    return res.status(400).json({ error: "name is required" });
+  }
+
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        name: name,
+        currency_id: currency_id,
+      },
+    });
+    res.status(201).json({ message: "User created", user: newUser });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create user" });
+  }
 });
 
 router.delete("/deleteUser/:id", async (req, res) => {
-  const users = await readUsers();
-  const newUsers = users.filter((u) => u.id !== Number(req.params.id));
-  if (newUsers.length === users.length)
-    return res.status(404).json({ error: "User not found" });
+  const id = Number(req.params.id);
 
-  await writeUsers(newUsers);
-  res.json({ message: "User deleted" });
+  try {
+    await prisma.user.delete({
+      where: { id: id },
+    });
+
+    res.json({ message: "User deleted" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete user" });
+  }
 });
 
 export default router;

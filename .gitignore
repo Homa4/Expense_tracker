@@ -1,3 +1,4 @@
 node_modules
 .env
 additional_info
+/generated/prisma
