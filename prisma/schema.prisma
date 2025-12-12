@@ -39,6 +39,9 @@ model record {
 model user {
   id          Int       @id @default(autoincrement())
   name        String?   @db.VarChar(45)
+  email       String?   @unique
+  password    String?
+  refresh_token String?  @db.Text 
   currency_id Int?
   record      record[]
   currency    currency? @relation(fields: [currency_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "currency_id")
